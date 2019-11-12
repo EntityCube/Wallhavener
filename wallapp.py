@@ -585,7 +585,7 @@ peopleBT = ttk.Button(text='People', width=6, style='Inactive.TButton', command=
 peopleBT.place(relx=0.72, rely=0.05, relwidth=0.2)
 # ----------
 
-# Purity
+# Purity label and 3 buttons
 purtiyLB = ttk.Label(root, text='Purity:', anchor='e', width=8)
 purtiyLB.place(relx=0.01, rely=0.15, relwidth=0.17)
 
