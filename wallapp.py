@@ -141,13 +141,15 @@ def set_apikey(value):
 # function for setting sorting
 sorting = 'date_added'
 def on_sorting_selected(event):
+    global topRange
     selected_sorting = sortingCB.get()
     set_sorting(selected_sorting)
 
-    if (selected_sorting == 'toplist'):
+    if (selected_sorting == 'toplist' or selected_sorting == 'toplist-beta'):
         topRangeCB.place(relx=0.75, rely=0.34, relwidth=0.2)
     else:
         topRangeCB.place_forget()
+        topRange = ''
 
 def set_sorting(value):
     global sorting
@@ -177,6 +179,13 @@ resolutions = ''
 def on_resolution_selected(event):
     selected_resolution = resolutionCB.get()
     set_resolution(selected_resolution)
+    
+    if (selected_resolution != 'Any' and resolutionVar.get() == 'exact'):
+        ratioCB.place_forget()
+        ratioLB.place_forget()
+    else:
+        ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
+        ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
 
 def set_resolution(value):
     global atleast
@@ -199,6 +208,13 @@ def set_resolution(value):
 def on_exact_or_atleast():
     selected_resolution = resolutionCB.get()
     set_resolution(selected_resolution)
+
+    if (selected_resolution != 'Any' and resolutionVar.get() == 'exact'):
+        ratioCB.place_forget()
+        ratioLB.place_forget()
+    else:
+        ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
+        ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
 
 # function for setting ratio
 ratios = '' 
@@ -303,6 +319,7 @@ def loop():
 
     while 1:
         while run:
+            set_apicache()
             print('looping x')
             fetch()
 
@@ -318,6 +335,9 @@ def loop():
 
 # functions for collecting walls
 # variabels
+
+# starting thread and run loop function
+# this runs in background and check for run and stop
 StartThread()
 url = 'https://wallhaven.cc/api/v1/search'
 
@@ -330,9 +350,11 @@ def fetch():
     global lastpage
     global response
     global run
-
+    
+    response_code = 0
     try:
-        if run:
+        if run:    
+            print('sending api----------------------')
             statusVar.set('sending api request')
             response = requests.get(url, params=params)
             response_code = response.status_code
@@ -340,14 +362,17 @@ def fetch():
         print('No internet Error')
         statusVar.set('Network Error')
         toggle_running()
-    
-    if (validate_response_code(response_code)):
+
+    print(response_code) 
+    if (run and validate_response_code(response_code)):
         set_lastpage()
         
         wallpaper_list = filter_wall_urls(response)
 
         if (wallpaper_list and run):
             chosen_wallpaper = random.choice(wallpaper_list)
+            pprint(chosen_wallpaper)
+            chosen_wallpaper = chosen_wallpaper['path']
             if(download_wall(chosen_wallpaper) and run):
                 set_wall_method_feh()
         else:
@@ -417,10 +442,12 @@ def filter_wall_urls(response):
     response_list = response_json['data']
     collected_wall_urls = []
     for item in response_list:
-        collected_wall_urls.append(item['path'])
+        # collected_wall_urls.append(item['path'])
+        collected_wall_urls.append(item)
     return collected_wall_urls
 
 def validate_response_code(code):
+    global purityArr
 
     statusVar.set('validating response code')
     if (code == 200):
@@ -435,8 +462,9 @@ def validate_response_code(code):
             print('invalid apikey')
             toggle_running()
             statusVar.set('invalid apikey')
-        else:
-            set_apicache()
+            apikeyEN.delete(0,END)
+            getapi = 'get your api from: https://wallhaven.cc/settings/account'
+            apikeyEN.insert(0,getapi)
         return False
         
 lastpage = 1
@@ -459,8 +487,9 @@ def set_params():
 
     random_page = random.randint(1, lastpage)
 
+
     params = {'apikey' : apikey,
-              'category':category,
+              'categories':category,
               'purity':purity,
               'sorting':sorting,
               'order': order,
@@ -470,7 +499,6 @@ def set_params():
               'ratios': ratios,
               'page': random_page
              }
-    print(params)
 
 
 def concatenate_list_data(list):
@@ -500,9 +528,15 @@ root.minsize(350, 450)
 root.configure(background = canvasbg)
 root.title('Wallhaven')
 
-root.overrideredirect(True)
-root.wait_visibility(root)
-root.wm_attributes("-alpha", 0.9)
+# alpha set
+
+# root.update_idletasks()
+# root.overrideredirect(True)
+# root.wait_visibility(root)
+# root.attributes("-alpha", 0.8)
+# root.attributes('-type', 'normal')
+# root.attributes('-alpha', 0.8)
+
 # Styling * ---- *
 style = ttk.Style()
 
@@ -573,7 +607,7 @@ apikeyEN.bind('<KeyRelease>', on_apikey_input)
 sortingLB = ttk.Label(root, text='Sort By:', anchor='e', width=8)
 sortingLB.place(relx=0.01, rely=0.35, relwidth=0.17)
 
-sortingMethodList = ['date_added', 'relevance', 'random', 'views', 'favorites', 'toplist']
+sortingMethodList = ['date_added', 'relevance', 'random', 'views', 'favorites', 'toplist','toplist-beta']
 sortingCB =  ttk.Combobox(root, values=sortingMethodList, width=10, state='readonly')
 sortingCB.current(0)
 sortingCB.place(relx=0.22, rely=0.34, relwidth=0.5)
