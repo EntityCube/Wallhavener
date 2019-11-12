@@ -412,10 +412,16 @@ def download_wall(url):
     global wallpath
     global run
 
-    if (saveVar.get()):
+    # test if already downloaded
+    wallname = url.split('/')[-1].split('?')[0]
+    wallpath = f'Wallpapers/{wallname}'
 
-        wallname = url.split('/')[-1].split('?')[0]
-        wallpath = f'Wallpapers/{wallname}'
+    if os.path.isfile(wallpath):
+        print("File found in saved -------------------------")
+        statusVar.set('Wallaper found in saved')
+        return True
+
+    if (saveVar.get()):
         print(wallpath)
         newpath = r'Wallpapers' 
         if not os.path.exists(newpath):
@@ -526,7 +532,7 @@ root = ThemedTk(theme='equilux')
 # root.resizable(False, False)
 root.minsize(350, 450)
 root.configure(background = canvasbg)
-root.title('Wallhaven')
+root.title('Wallhavener')
 
 # alpha set
 
@@ -668,7 +674,7 @@ pageLB.place(relx=0.01, rely=0.7, relwidth=0.19)
 
 pagelist = ['Any','1','1-3','1-5','1-10','1-15','1-20']
 pageLB = ttk.Label(root, text='Page:')
-pageCB = ttk.Combobox(root, values=pagelist, width=10)
+pageCB = ttk.Combobox(root, values=pagelist, width=10, state='readonly')
 pageCB.place(relx=0.22, rely=0.685, relwidth=0.18)
 pageCB.bind('<<ComboboxSelected>>', on_page_selected)
 pageCB.current(0)
