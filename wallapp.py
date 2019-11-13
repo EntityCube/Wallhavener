@@ -1,30 +1,34 @@
-# An Wallpaper app using tkinter and requests
+# A Wallpaper downloader app using wallhaven api
 
-# importing all modules needed
-import os, requests, time, random
+# imports
+import os
+import requests
+import time
+import random
 from pprint import pprint
 from tkinter import *
 from tkinter import ttk
 from ttkthemes import ThemedTk
+from threading import Thread
 
-
-# Program Logic
-
+# --- Program Functions ---
 
 # function to set categoryArr
+categoryArr = [1, 0, 0]  # general, anime, people
 
-categoryArr = [1,0,0] # general, anime, people
 
 def set_category(toggle):
     global categoryArr
+
     if (toggle == 'general'):
         toggle_category(0)
     elif (toggle == 'anime'):
         toggle_category(1)
     elif (toggle == 'people'):
         toggle_category(2)
-    
+
     toggle_category_color()
+
 
 def toggle_category(pos):
     global categoryArr
@@ -36,7 +40,8 @@ def toggle_category(pos):
         if not(1 in categoryArr):
             categoryArr[pos] = 1
 
-    print(categoryArr)
+    # print(categoryArr)
+
 
 def toggle_category_color():
     if (categoryArr[0] == 0):
@@ -56,19 +61,21 @@ def toggle_category_color():
 
 
 # function to set purtiy
+purityArr = [1, 0, 0]  # sfw, sketchy, nsfw
 
-purityArr = [1,0,0] # sfw, sketchy, nsfw
 
 def set_purity(toggle):
     global purityArr
+
     if (toggle == 'sfw'):
         toggle_purity(0)
     elif (toggle == 'sketchy'):
         toggle_purity(1)
     elif (toggle == 'nsfw'):
         toggle_purity(2)
-    
+
     toggle_purity_color()
+
 
 def toggle_purity(pos):
     global purityArr
@@ -80,7 +87,8 @@ def toggle_purity(pos):
         if not(1 in purityArr):
             purityArr[pos] = 1
 
-    print(purityArr)
+    # print(purityArr)
+
 
 def toggle_purity_color():
     if (purityArr[0] == 0):
@@ -106,41 +114,40 @@ def toggle_purity_color():
 
         api_cache()
 
+
+# function to set api cache
 def api_cache():
     global run
-    with open('.apicache','r') as api_cache:
+    with open('.apicache', 'r') as api_cache:
         apikey = api_cache.read()
         if (apikey):
-            apikeyEN.delete(0,END)
-            apikeyEN.insert(0,apikey)
+            apikeyEN.delete(0, END)
+            apikeyEN.insert(0, apikey)
         else:
-            apikeyEN.delete(0,END)
+            apikeyEN.delete(0, END)
             getapi = 'get your api from: https://wallhaven.cc/settings/account'
-            apikeyEN.insert(0,getapi)
+            apikeyEN.insert(0, getapi)
+
 
 # function for api input
 apikey = ''
+
+
 def on_apikey_input(event):
-    entry = apikeyEN.get()    
-    # if (validate_apikey_input(entry)):
+    entry = apikeyEN.get()
     set_apikey(entry)
+
 
 def set_apikey(value):
     global apikey
-    apikey = value 
+    apikey = value
     print(apikey)
-
-# def validate_apikey_input(entry):
-    # if entry:
-        # return True
-    # else:
-        # return False
-    
-
 
 
 # function for setting sorting
 sorting = 'date_added'
+
+
 def on_sorting_selected(event):
     global topRange
     selected_sorting = sortingCB.get()
@@ -152,36 +159,47 @@ def on_sorting_selected(event):
         topRangeCB.place_forget()
         topRange = ''
 
+
 def set_sorting(value):
     global sorting
     sorting = value
     print(sorting)
 
+
 # function for setting toprange
 topRange = '1M'
+
+
 def on_top_range_selected(event):
     selected_top_range = topRangeCB.get()
     set_top_range(selected_top_range)
+
 
 def set_top_range(value):
     global topRange
     topRange = value
     print(topRange)
 
+
 # function for setting order
 order = 'desc'
+
+
 def set_order():
     order = sortingOrderVar.get()
     print(order)
 
+
 # function for setting resolution
 atleast = ''
 resolutions = ''
+
+
 def on_resolution_selected(event):
     global ratios
     selected_resolution = resolutionCB.get()
     set_resolution(selected_resolution)
-    
+
     if (selected_resolution != 'Any' and resolutionVar.get() == 'exact'):
         ratioCB.current(0)
         ratios = ''
@@ -191,11 +209,12 @@ def on_resolution_selected(event):
         ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
         ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
 
+
 def set_resolution(value):
     global atleast
     global resolutions
     
-    if (value=='Any'):
+    if (value == 'Any'):
         resolutions = ''
         atleast = ''
     elif(resolutionVar.get() == 'atleast'):
@@ -205,8 +224,9 @@ def set_resolution(value):
         resolutions = value
         atleast = ''
 
-    print('res',resolutions)
-    print('atl',atleast)
+    print('res', resolutions)
+    print('atl', atleast)
+
 
 # function for setting exact and atleast
 def on_exact_or_atleast():
@@ -220,12 +240,16 @@ def on_exact_or_atleast():
         ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
         ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
 
+
 # function for setting ratio
-ratios = '' 
-ratios_list = ['Any','16x9','32x9','9x16']
+ratios = ''
+ratios_list = ['Any', '16x9', '32x9', '9x16']
+
+
 def on_ratio_selected(even):
     selected_ratio = ratioCB.get()
     set_ratio(selected_ratio)
+
 
 def set_ratio(value):
     global ratios
@@ -237,9 +261,12 @@ def set_ratio(value):
 
 # function to set page
 page = ''
+
+
 def on_page_selected(event):
     selected_page = pageCB.get()
     set_page(selected_page)
+
 
 def set_page(value):
     global page
@@ -250,17 +277,22 @@ def set_page(value):
 
     print(page)
 
+
 # function for timeout entry
 timeout = 0
+
+
 def on_timeout_input(event):
     entry = timeoutEN.get()
     if(validate_timeout_input(entry)):
         set_timeout(entry)
 
+
 def set_timeout(value):
     global timeout
     timeout = int(value)
     print(timeout)
+
 
 def validate_timeout_input(value):
     if value:
@@ -269,29 +301,33 @@ def validate_timeout_input(value):
             print(value)
             return True
         except:
-            timeoutEN.delete(0,END)
+            timeoutEN.delete(0, END)
             print('deleted')
             return False
     else:
         return False
 
+
 # function for run toggle
 run = False
+
 
 def toggle_running():
     global run
 
-    if (run == False):
+    if (run is False):
         runBT.configure(text='Stop')
         run = True
-    elif (run == True):
+    elif (run is True):
         runBT.configure(text='Run')
         run = False
         statusVar.set('Not Running')
     # connecting to real functions
     main()
 
-from threading import Thread
+
+
+
 def StartThread():
     global timeout
     thread = Thread(target=loop)
@@ -345,7 +381,6 @@ def loop():
 StartThread()
 url = 'https://wallhaven.cc/api/v1/search'
 
-import random
 
 def fetch():
     set_params()
@@ -384,6 +419,7 @@ def fetch():
             print('no wallpapers recieved')
             toggle_running()
 
+
 def set_lastpage():
     global page
     global response
@@ -399,7 +435,8 @@ def set_lastpage():
         lastpage = int(page.split('-')[1])
         print('here')
 
-    print(lastpage,'= lastpage')
+    print(lastpage, '= lastpage')
+
 
 def set_wall_method_feh():
     statusVar.set('setting wallpaper using feh')
@@ -411,6 +448,7 @@ def set_wall_method_feh():
         os.system('feh .wallpaper.jpg --bg-fill')
         statusVar.set('wallpaper set')
         print('wallpaper applied')
+
 
 def download_wall(url):
     global wallpath
@@ -446,6 +484,7 @@ def download_wall(url):
         toggle_running()
         return False
 
+
 def filter_wall_urls(response):
     statusVar.set('filtering urls')
     response_json = response.json()
@@ -456,6 +495,7 @@ def filter_wall_urls(response):
         collected_wall_urls.append(item)
     return collected_wall_urls
 
+
 def validate_response_code(code):
     global purityArr
 
@@ -464,7 +504,7 @@ def validate_response_code(code):
         statusVar.set('response code okay')
         return True
     else:
-        print('error code:',code)
+        print('error code:', code)
 
         statusVar.set(f'bad response code {code}')
 
@@ -472,16 +512,18 @@ def validate_response_code(code):
             print('invalid apikey')
             toggle_running()
             statusVar.set('invalid apikey')
-            apikeyEN.delete(0,END)
+            apikeyEN.delete(0, END)
             getapi = 'get your api from: https://wallhaven.cc/settings/account'
-            apikeyEN.insert(0,getapi)
+            apikeyEN.insert(0, getapi)
         return False
-        
+
+
 lastpage = 1
+
+
 def set_params():
     global params
     global lastpage
-
     global categoryArr
     global purityArr
     global sorting
@@ -491,28 +533,26 @@ def set_params():
     global resolutions
     global ratios
     global page
-    
+
     category = concatenate_list_data(categoryArr)
     purity = concatenate_list_data(purityArr)
-
     random_page = random.randint(1, lastpage)
 
-
-    params = {'apikey' : apikey,
-              'categories':category,
-              'purity':purity,
-              'sorting':sorting,
+    params = {'apikey': apikey,
+              'categories': category,
+              'purity': purity,
+              'sorting': sorting,
               'order': order,
               'topRange': topRange,
               'atleast': atleast,
               'resolutions': resolutions,
               'ratios': ratios,
               'page': random_page
-             }
+              }
 
 
 def concatenate_list_data(list):
-    result= ''
+    result = ''
     for element in list:
         result += str(element)
     return result
