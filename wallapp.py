@@ -107,6 +107,7 @@ def toggle_purity_color():
         api_cache()
 
 def api_cache():
+    global run
     with open('.apicache','r') as api_cache:
         apikey = api_cache.read()
         if (apikey):
@@ -177,10 +178,13 @@ def set_order():
 atleast = ''
 resolutions = ''
 def on_resolution_selected(event):
+    global ratios
     selected_resolution = resolutionCB.get()
     set_resolution(selected_resolution)
     
     if (selected_resolution != 'Any' and resolutionVar.get() == 'exact'):
+        ratioCB.current(0)
+        ratios = ''
         ratioCB.place_forget()
         ratioLB.place_forget()
     else:
@@ -218,7 +222,7 @@ def on_exact_or_atleast():
 
 # function for setting ratio
 ratios = '' 
-ratios_list = ['Any','16x9','32x9']
+ratios_list = ['Any','16x9','32x9','9x16']
 def on_ratio_selected(even):
     selected_ratio = ratioCB.get()
     set_ratio(selected_ratio)
@@ -226,9 +230,9 @@ def on_ratio_selected(even):
 def set_ratio(value):
     global ratios
     if (value == 'Any'):
-        ratio = ''
+        ratios = ''
     else:
-        ratio = value
+        ratios = value
 
 
 # function to set page
@@ -607,6 +611,7 @@ apikeyEN = ttk.Entry(root, width=30)
 apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
 apikeyEN.place_forget()
 apikeyEN.bind('<KeyRelease>', on_apikey_input)
+apikeyEN.bind('<FocusOut>', on_apikey_input)
 
 
 # sorting methods
