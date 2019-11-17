@@ -357,7 +357,7 @@ def toggle_running():
 def toggle_setting_widgets(running):
     global runBTcolor
     if running:
-        runBTcolor = '#DD2C00'
+        runBTcolor = '#FF5722'
         gui_style()
     else:
         runBTcolor = '#00C853'
@@ -666,7 +666,7 @@ root.title('Wallhavener')
 # Styling * ---- *
 def gui_style():
 
-    root.configure(background = canvasbg)
+    root.configure(background = canvasbg )
 
     style = ttk.Style()
 
@@ -674,9 +674,10 @@ def gui_style():
     #configure label
     style.configure('TLabel', background = canvasbg, foreground=whitefg)
 
-    #configure button
-    style.configure('Inactive.TButton', background = redbg, foreground = whitefg)
-    style.configure('Active.TButton', background = greenbg, foreground = whitefg)
+    #configure buttons
+
+    style.configure('Inactive.TButton', background = '#37474F', foreground = whitefg)
+    style.configure('Active.TButton', background = '#039BE5', foreground = whitefg)
 
     # bakcground fix
     style.configure('TButton', background = canvasbg, foreground = whitefg)
@@ -688,7 +689,7 @@ def gui_style():
     style.configure('Run.TButton', background = runBTcolor, foreground = whitefg)
     #hidden
     # entry button
-    style.map("TEntry",background=[("disabled", redbg)])
+    style.map("TEntry",background=[("disabled", '#37474F')])
     canvas.configure(bg=canvasbg)
 
     # * --------------- *
@@ -842,6 +843,5 @@ runBT.place(relx=0.7, rely=0.9, relwidth=0.23)
 
 api_cache() # set apikey if its found in cache
 
-# Main loop
+# tkinter loop
 root.mainloop()
-
