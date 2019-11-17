@@ -10,6 +10,7 @@ from tkinter import *
 from tkinter import ttk
 from ttkthemes import ThemedTk
 from threading import Thread
+import pdb # for debugging
 
 # --- Program Functions ---
 
@@ -103,35 +104,58 @@ def toggle_purity_color():
 
     if (purityArr[2] == 0):
         nsfwBT.configure(style='Inactive.TButton')
-        # forget api
-        apikeyLB.place_forget()
-        apikeyEN.place_forget()
+        # apikeyLB.place_forget()  # hide api label
+        # apikeyEN.place_forget()  # hide api entry
+        apikeyEN.configure(state = 'disabled')
+
     else:
         nsfwBT.configure(style='Active.TButton')
-        # show api entry and label
-        apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
-        apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
+        apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
+        apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
+        apikeyEN.configure(state = 'enabled')
 
-        api_cache()
+        # api_cache()
+
 
 
 # function to set api cache
 def api_cache():
     global run
+    global apikey
+
+    getapi = 'get your api from: https://wallhaven.cc/settings/account'
+
     with open('.apicache', 'r') as api_cache:
-        apikey = api_cache.read()
-        if (apikey):
-            apikeyEN.delete(0, END)
-            apikeyEN.insert(0, apikey)
+        api_cached_key = api_cache.read()
+        apiEntryState = str(apikeyEN.cget('state'))
+
+        if (api_cached_key):
+            if apiEntryState == 'disabled':
+                apikeyEN.config(state = 'enabled')
+                apikeyEN.delete(0, END)
+                apikeyEN.insert(0, api_cached_key)
+                apikeyEN.config(state = 'disabled')
+            else:
+                apikeyEN.delete(0, END)
+                apikeyEN.insert(0, api_cached_key)
+
+            apikey = api_cached_key
+
         else:
-            apikeyEN.delete(0, END)
-            getapi = 'get your api from: https://wallhaven.cc/settings/account'
-            apikeyEN.insert(0, getapi)
+            print('no api found!')
+            print(apikeyEN.cget('state'))
+            if apiEntryState == 'disabled':
+                apikeyEN.config(state = 'enabled')
+                apikeyEN.delete(0, END)
+                apikeyEN.insert(0, getapi)
+                apikeyEN.config(state = 'disabled')
+            else:
+                apikeyEN.delete(0, END)
+                apikeyEN.insert(0, getapi)
 
 
 # function for api input
 apikey = ''
-
 
 def on_apikey_input(event):
     entry = apikeyEN.get()
@@ -154,6 +178,7 @@ def on_sorting_selected(event):
     set_sorting(selected_sorting)
 
     if (selected_sorting == 'toplist' or selected_sorting == 'toplist-beta'):
+        topRange = '1M'
         topRangeCB.place(relx=0.75, rely=0.34, relwidth=0.2)
     else:
         topRangeCB.place_forget()
@@ -315,21 +340,31 @@ run = False
 def toggle_running():
     global run
 
+    set_settings() # set parameters
     if (run is False):
         runBT.configure(text='Stop')
         run = True
+        toggle_setting_widgets(True)
     elif (run is True):
         runBT.configure(text='Run')
         run = False
+        toggle_setting_widgets(False)
         statusVar.set('Not Running')
     # connecting to real functions
     main()
 
 
+def toggle_setting_widgets(running):
+    global runBTcolor
+    if running:
+        runBTcolor = '#DD2C00'
+        gui_style()
+    else:
+        runBTcolor = '#00C853'
+        gui_style()
 
 
 def StartThread():
-    global timeout
     thread = Thread(target=loop)
     thread.start()
 
@@ -338,8 +373,6 @@ def StartThread():
 
 def main():
     global run
-    global process
-    global timeout
     print(run)
     if run:
         print('Starting')
@@ -354,16 +387,15 @@ def set_apicache():
 
 def loop():
     global statusVar
-    global timeout
+    global loopTimeout
     global run
 
     while 1:
         while run:
-            set_apicache()
             print('looping x')
             fetch()
 
-            for i in range(timeout,0,-1):
+            for i in range(loopTimeout ,0 ,-1):
                 if not run:
                     break
                 else:
@@ -397,7 +429,7 @@ def fetch():
             statusVar.set('sending api request')
             response = requests.get(url, params=params)
             response_code = response.status_code
-    except:
+    except Exce:
         print('No internet Error')
         statusVar.set('Network Error')
         toggle_running()
@@ -521,33 +553,77 @@ def validate_response_code(code):
 lastpage = 1
 
 
-def set_params():
+def set_settings():
+    global apikey
+
+    global reqApikey
+    global reqCategories
+    global reqPurity
+    global reqSorting
+    global reqOrder
+    global reqTopRange
+    global reqAtleast
+    global reqResolutions
+    global reqRatios
+
+    global timeout
+    global loopTimeout
+
+    category = concatenate_list_data(categoryArr)
+    purity = concatenate_list_data(purityArr)
+
+    reqCategories = category
+    reqPurity = purity
+
+    # dont use api key if nsfw purity is off
+    if (purityArr[2] != 0):
+        reqApikey = apikey
+    else:
+        reqApikey = ''
+
+    reqSorting = sorting
+    reqOrder = order
+    reqTopRange = topRange
+    reqAtleast = atleast
+    reqResolutions = resolutions
+    reqRatios = ratios
+
+    loopTimeout = timeout 
+
+
+def set_params():  #This function is called everytime when requesting for new wallpaper
+    
     global params
     global lastpage
     global categoryArr
     global purityArr
-    global sorting
-    global order
-    global topRange
-    global atleast
-    global resolutions
-    global ratios
-    global page
 
-    category = concatenate_list_data(categoryArr)
-    purity = concatenate_list_data(purityArr)
+    global reqApikey
+    global reqCategories
+    global reqPurity
+    global reqSorting
+    global reqOrder
+    global reqTopRange
+    global reqAtleast
+    global reqResolutions
+    global reqRatios
+
     random_page = random.randint(1, lastpage)
 
-    params = {'apikey': apikey,
-              'categories': category,
-              'purity': purity,
-              'sorting': sorting,
-              'order': order,
-              'topRange': topRange,
-              'atleast': atleast,
-              'resolutions': resolutions,
-              'ratios': ratios,
-              'page': random_page
+    params = {'apikey': reqApikey,
+              'categories': reqCategories,
+              'purity': reqPurity,
+              'sorting': reqSorting,
+              'order': reqOrder,
+              'topRange': reqTopRange,
+              'atleast': reqAtleast,
+              'resolutions': reqResolutions,
+              'ratios': reqRatios,
+
+              # random page needs will be 1 on first api call
+              # on 1st request we get lastpage number
+              # after 1st request everything will be random according to settings
+              'page': random_page 
               }
 
 
@@ -571,11 +647,11 @@ greenbg = '#4CAF50'
 #fg
 whitefg = '#FFF'
 
+runBTcolor = '#00C853'
 
 root = ThemedTk(theme='equilux')
 # root.resizable(False, False)
 root.minsize(350, 450)
-root.configure(background = canvasbg)
 root.title('Wallhavener')
 
 # alpha set
@@ -588,25 +664,34 @@ root.title('Wallhavener')
 # root.attributes('-alpha', 0.8)
 
 # Styling * ---- *
-style = ttk.Style()
+def gui_style():
 
-style.configure('TRadiobutton',foreground = 'white', background = canvasbg) 
+    root.configure(background = canvasbg)
 
-#configure label
-style.configure('TLabel', background = canvasbg, foreground=whitefg)
+    style = ttk.Style()
 
-#configure button
-style.configure('Inactive.TButton', background = redbg)
-style.configure('Active.TButton', background = greenbg)
+    style.configure('TRadiobutton',foreground = 'white', background = canvasbg)
+    #configure label
+    style.configure('TLabel', background = canvasbg, foreground=whitefg)
 
-# bakcground fix
-style.configure('TButton', background = canvasbg)
-style.configure('TCombobox', background = canvasbg)
-style.configure('TEntry', background = canvasbg)
-style.configure('TCheckbutton', background = canvasbg)
-#hidden
+    #configure button
+    style.configure('Inactive.TButton', background = redbg, foreground = whitefg)
+    style.configure('Active.TButton', background = greenbg, foreground = whitefg)
 
-# * --------------- *
+    # bakcground fix
+    style.configure('TButton', background = canvasbg, foreground = whitefg)
+    style.configure('TCombobox', background = canvasbg, foreground = whitefg)
+    style.configure('TEntry', background = canvasbg, foreground = whitefg)
+    style.configure('TCheckbutton', background = canvasbg, foreground = whitefg)
+
+
+    style.configure('Run.TButton', background = runBTcolor, foreground = whitefg)
+    #hidden
+    # entry button
+    style.map("TEntry",background=[("disabled", redbg)])
+    canvas.configure(bg=canvasbg)
+
+    # * --------------- *
 
 
 # Main Canvas
@@ -614,6 +699,7 @@ canvas = Canvas(root, bd=0, bg=canvasbg, highlightthickness=0)
 canvas.pack()
 
 
+gui_style()
 
 # Categories
 categoryLB = ttk.Label(root, text='Category:', anchor='e', width=8)
@@ -645,11 +731,11 @@ nsfwBT.place(relx=0.72, rely=0.15, relwidth=0.2)
 # Api entry
 apikeyLB = ttk.Label(root, text='Api key:', anchor='e', width=8)
 apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
-apikeyLB.place_forget()
+# apikeyLB.place_forget()
 
-apikeyEN = ttk.Entry(root, width=30)
+apikeyEN = ttk.Entry(root, width=30, state = 'disabled')
 apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
-apikeyEN.place_forget()
+# apikeyEN.place_forget()
 apikeyEN.bind('<KeyRelease>', on_apikey_input)
 apikeyEN.bind('<FocusOut>', on_apikey_input)
 
@@ -733,7 +819,7 @@ saveCB = ttk.Checkbutton(root, variable=saveVar, onvalue=1, offvalue=0)
 saveCB.place(relx=0.22, rely=0.775)
 
 # timeout
-timeoutLB = ttk.Label(root, text='timeout:', anchor='e', width=8)
+timeoutLB = ttk.Label(root, text='interval:', anchor='e', width=8)
 timeoutLB.place(relx=0.01, rely=0.853, relwidth=0.19)
 
 timeoutEN = ttk.Entry(root, width=5)
@@ -750,8 +836,11 @@ statusLB = ttk.Label(root, textvariable=statusVar, anchor='w', width=10)
 statusLB.place(relx=0.22, rely=0.92, relwidth=0.50)
 
 # Run button
-runBT = ttk.Button(root, text='Run', command=toggle_running, width=5)
+runBT = ttk.Button(root, text='Run', command=toggle_running, width=5, style='Run.TButton')
 runBT.place(relx=0.7, rely=0.9, relwidth=0.23)
+
+
+api_cache() # set apikey if its found in cache
 
 # Main loop
 root.mainloop()
