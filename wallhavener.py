@@ -12,7 +12,7 @@ from tkinter import *
 from tkinter import ttk
 from ttkthemes import ThemedTk
 from threading import Thread
-import pdb # for debugging
+import pdb  # for debugging
 
 # --- Program Functions ---
 
@@ -108,16 +108,15 @@ def toggle_purity_color():
         nsfwBT.configure(style='Inactive.TButton')
         # apikeyLB.place_forget()  # hide api label
         # apikeyEN.place_forget()  # hide api entry
-        apikeyEN.configure(state = 'disabled')
+        apikeyEN.configure(state='disabled')
 
     else:
         nsfwBT.configure(style='Active.TButton')
         apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
         apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
-        apikeyEN.configure(state = 'enabled')
+        apikeyEN.configure(state='enabled')
 
         # api_cache()
-
 
 
 # function to set api cache
@@ -126,7 +125,7 @@ def api_cache():
     global apikey
 
     getapi = 'get your api from: https://wallhaven.cc/settings/account'
-    
+
     if os.path.exists('.apicache'):
         print('api cache exists')
         with open('.apicache', 'r') as api_cache:
@@ -135,10 +134,10 @@ def api_cache():
 
             if (api_cached_key):
                 if apiEntryState == 'disabled':
-                    apikeyEN.config(state = 'enabled')
+                    apikeyEN.config(state='enabled')
                     apikeyEN.delete(0, END)
                     apikeyEN.insert(0, api_cached_key)
-                    apikeyEN.config(state = 'disabled')
+                    apikeyEN.config(state='disabled')
                 else:
                     apikeyEN.delete(0, END)
                     apikeyEN.insert(0, api_cached_key)
@@ -149,10 +148,10 @@ def api_cache():
                 print('no api found!')
                 print(apikeyEN.cget('state'))
                 if apiEntryState == 'disabled':
-                    apikeyEN.config(state = 'enabled')
+                    apikeyEN.config(state='enabled')
                     apikeyEN.delete(0, END)
                     apikeyEN.insert(0, getapi)
-                    apikeyEN.config(state = 'disabled')
+                    apikeyEN.config(state='disabled')
                 else:
                     apikeyEN.delete(0, END)
                     apikeyEN.insert(0, getapi)
@@ -160,6 +159,7 @@ def api_cache():
 
 # function for api input
 apikey = ''
+
 
 def on_apikey_input(event):
     entry = apikeyEN.get()
@@ -242,7 +242,7 @@ def on_resolution_selected(event):
 def set_resolution(value):
     global atleast
     global resolutions
-    
+
     if (value == 'Any'):
         resolutions = ''
         atleast = ''
@@ -301,7 +301,7 @@ def set_page(value):
     global page
     if (value == 'Any'):
         page = ''
-    else: 
+    else:
         page = value
 
     print(page)
@@ -329,7 +329,7 @@ def validate_timeout_input(value):
             int(value)
             print(value)
             return True
-        except:
+        except ValueError:
             timeoutEN.delete(0, END)
             print('deleted')
             return False
@@ -344,7 +344,7 @@ run = False
 def toggle_running():
     global run
 
-    set_settings() # set parameters
+    set_settings()  # set parameters
     if (run is False):
         runBT.configure(text='Stop')
         run = True
@@ -375,6 +375,7 @@ def StartThread():
 # ****** PROGRAM REAL FUNCTIONS ********
 # from multiprocessing import Process
 
+
 def main():
     global run
     print(run)
@@ -382,6 +383,7 @@ def main():
         print('Starting')
     else:
         print('Stopping')
+
 
 def set_apicache():
     print('saving api key', apikey)
@@ -399,7 +401,7 @@ def loop():
             print('looping x')
             fetch()
 
-            for i in range(loopTimeout ,0 ,-1):
+            for i in range(loopTimeout, 0, -1):
                 if not run:
                     break
                 else:
@@ -411,6 +413,7 @@ def loop():
 
 # functions for collecting walls
 # variabels
+
 
 # starting thread and run loop function
 # this runs in background and check for run and stop
@@ -425,10 +428,10 @@ def fetch():
     global lastpage
     global response
     global run
-    
+
     response_code = 0
     try:
-        if run:    
+        if run:
             print('sending api----------------------')
             statusVar.set('sending api request')
             response = requests.get(url, params=params)
@@ -438,10 +441,10 @@ def fetch():
         statusVar.set('Network Error')
         toggle_running()
 
-    print(response_code) 
+    print(response_code)
     if (run and validate_response_code(response_code)):
         set_lastpage()
-        
+
         wallpaper_list = filter_wall_urls(response)
 
         if (wallpaper_list and run):
@@ -464,16 +467,16 @@ def set_wallpaper(platform):  # need more compatibility
 
     if (platform == 'Linux'):
         set_wall_on_linux()
-    
+
     elif (platform == 'Windows'):
         set_wall_on_windows()
 
     elif (platform == 'Darwin'):
-        toggle_running() 
+        toggle_running()
         statusVar.set('This app is not in supported in this platform')
 
     else:
-       statusVar.set('This platform not supported') 
+        statusVar.set('This platform not supported')
 
 
 def set_lastpage():
@@ -504,21 +507,23 @@ def set_wall_on_windows():
         imgpath = wallpath
         wallpath = os.path.join(dirpath, imgpath)
 
-        ctypes.windll.user32.SystemParametersInfoA(20, 0, wallpath, 3)
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, wallpath, 3)
 
         statusVar.set(f'{wallpath} wallpaper set and saved')
-    else: 
+    else:
         dirpath = os.getcwd()
         imgpath = '.wallpaper.jpg'
         wallpath = os.path.join(dirpath, imgpath)
 
-        ctypes.windll.user32.SystemParametersInfoA(20, 0, wallpath, 3)
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, wallpath, 3)
 
         statusVar.set('wallpaper set')
         print('wallpaper applied')
 
-def set_wall_on_linux(): # need more methods for all linux
+
+def set_wall_on_linux():  # need more methods for all linux
     set_wall_method_feh()
+
 
 def set_wall_method_feh():
     statusVar.set('setting wallpaper using feh')
@@ -547,7 +552,7 @@ def download_wall(url):
 
     if (saveVar.get()):
         print(wallpath)
-        newpath = r'Wallpapers' 
+        newpath = r'Wallpapers'
         if not os.path.exists(newpath):
             os.makedirs(newpath)
     else:
@@ -638,11 +643,11 @@ def set_settings():
     reqResolutions = resolutions
     reqRatios = ratios
 
-    loopTimeout = timeout 
+    loopTimeout = timeout
 
 
-def set_params():  #This function is called everytime when requesting for new wallpaper
-    
+def set_params():  # This function is called everytime when requesting for new wallpaper
+
     global params
     global lastpage
     global categoryArr
@@ -673,7 +678,7 @@ def set_params():  #This function is called everytime when requesting for new wa
               # random page needs will be 1 on first api call
               # on 1st request we get lastpage number
               # after 1st request everything will be random according to settings
-              'page': random_page 
+              'page': random_page
               }
 
 
@@ -694,7 +699,7 @@ canvasbg = '#212121'
 framebg = '#3F51B5'
 redbg = '#f44336'
 greenbg = '#4CAF50'
-#fg
+# fg
 whitefg = '#FFF'
 
 runBTcolor = '#00C853'
@@ -714,32 +719,34 @@ root.title('Wallhavener')
 # root.attributes('-alpha', 0.8)
 
 # Styling * ---- *
+
+
 def gui_style():
 
-    root.configure(background = canvasbg )
+    root.configure(background=canvasbg)
 
     style = ttk.Style()
 
-    style.configure('TRadiobutton',foreground = 'white', background = canvasbg)
-    #configure label
-    style.configure('TLabel', background = canvasbg, foreground=whitefg)
+    style.configure('TRadiobutton', foreground='white', background=canvasbg)
+    # configure label
+    style.configure('TLabel', background=canvasbg, foreground=whitefg)
 
-    #configure buttons
+    # configure buttons
 
-    style.configure('Inactive.TButton', background = '#37474F', foreground = whitefg)
-    style.configure('Active.TButton', background = '#039BE5', foreground = whitefg)
+    style.configure('Inactive.TButton',
+                    background='#37474F', foreground=whitefg)
+    style.configure('Active.TButton', background='#039BE5', foreground=whitefg)
 
     # bakcground fix
-    style.configure('TButton', background = canvasbg, foreground = whitefg)
-    style.configure('TCombobox', background = canvasbg, foreground = whitefg)
-    style.configure('TEntry', background = canvasbg, foreground = whitefg)
-    style.configure('TCheckbutton', background = canvasbg, foreground = whitefg)
+    style.configure('TButton', background=canvasbg, foreground=whitefg)
+    style.configure('TCombobox', background=canvasbg, foreground=whitefg)
+    style.configure('TEntry', background=canvasbg, foreground=whitefg)
+    style.configure('TCheckbutton', background=canvasbg, foreground=whitefg)
 
-
-    style.configure('Run.TButton', background = runBTcolor, foreground = whitefg)
-    #hidden
+    style.configure('Run.TButton', background=runBTcolor, foreground=whitefg)
+    # hidden
     # entry button
-    style.map("TEntry",background=[("disabled", '#37474F')])
+    style.map("TEntry", background=[("disabled", '#37474F')])
     canvas.configure(bg=canvasbg)
 
     # * --------------- *
@@ -756,13 +763,16 @@ gui_style()
 categoryLB = ttk.Label(root, text='Category:', anchor='e', width=8)
 categoryLB.place(relx=0.01, rely=0.05, relwidth=0.17)
 
-generalBT = ttk.Button(text='General', width=6, style='Active.TButton', command=lambda: set_category('general'))
+generalBT = ttk.Button(text='General', width=6, style='Active.TButton',
+                       command=lambda: set_category('general'))
 generalBT.place(relx=0.22, rely=0.05, relwidth=0.2)
 
-animeBT = ttk.Button(text='Anime', width=6, style='Inactive.TButton', command=lambda: set_category('anime'))
+animeBT = ttk.Button(text='Anime', width=6, style='Inactive.TButton',
+                     command=lambda: set_category('anime'))
 animeBT.place(relx=0.47, rely=0.05, relwidth=0.2)
 
-peopleBT = ttk.Button(text='People', width=6, style='Inactive.TButton', command=lambda: set_category('people'))
+peopleBT = ttk.Button(text='People', width=6, style='Inactive.TButton',
+                      command=lambda: set_category('people'))
 peopleBT.place(relx=0.72, rely=0.05, relwidth=0.2)
 # ----------
 
@@ -770,13 +780,16 @@ peopleBT.place(relx=0.72, rely=0.05, relwidth=0.2)
 purtiyLB = ttk.Label(root, text='Purity:', anchor='e', width=8)
 purtiyLB.place(relx=0.01, rely=0.15, relwidth=0.17)
 
-sfwBT = ttk.Button(text='SFW', width=6, style='Active.TButton', command=lambda: set_purity('sfw'))
+sfwBT = ttk.Button(text='SFW', width=6, style='Active.TButton',
+                   command=lambda: set_purity('sfw'))
 sfwBT.place(relx=0.22, rely=0.15, relwidth=0.2)
 
-sketchyBT = ttk.Button(text='Sketchy', width=6, style='Inactive.TButton', command=lambda: set_purity('sketchy'))
+sketchyBT = ttk.Button(text='Sketchy', width=6,
+                       style='Inactive.TButton', command=lambda: set_purity('sketchy'))
 sketchyBT.place(relx=0.47, rely=0.15, relwidth=0.2)
 
-nsfwBT = ttk.Button(text='NSFW', width=6, style='Inactive.TButton', command=lambda: set_purity('nsfw'))
+nsfwBT = ttk.Button(text='NSFW', width=6, style='Inactive.TButton',
+                    command=lambda: set_purity('nsfw'))
 nsfwBT.place(relx=0.72, rely=0.15, relwidth=0.2)
 
 # Api entry
@@ -784,7 +797,7 @@ apikeyLB = ttk.Label(root, text='Api key:', anchor='e', width=8)
 apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
 # apikeyLB.place_forget()
 
-apikeyEN = ttk.Entry(root, width=30, state = 'disabled')
+apikeyEN = ttk.Entry(root, width=30, state='disabled')
 apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
 # apikeyEN.place_forget()
 apikeyEN.bind('<KeyRelease>', on_apikey_input)
@@ -795,8 +808,10 @@ apikeyEN.bind('<FocusOut>', on_apikey_input)
 sortingLB = ttk.Label(root, text='Sort By:', anchor='e', width=8)
 sortingLB.place(relx=0.01, rely=0.35, relwidth=0.17)
 
-sortingMethodList = ['date_added', 'relevance', 'random', 'views', 'favorites', 'toplist','toplist-beta']
-sortingCB =  ttk.Combobox(root, values=sortingMethodList, width=10, state='readonly')
+sortingMethodList = ['date_added', 'relevance', 'random',
+                     'views', 'favorites', 'toplist', 'toplist-beta']
+sortingCB = ttk.Combobox(root, values=sortingMethodList,
+                         width=10, state='readonly')
 sortingCB.current(0)
 sortingCB.place(relx=0.22, rely=0.34, relwidth=0.5)
 sortingCB.bind('<<ComboboxSelected>>', on_sorting_selected)
@@ -814,10 +829,12 @@ topRangeCB.bind('<<ComboboxSelected>>', on_top_range_selected)
 # sorting order
 # asc
 sortingOrderVar = StringVar()
-ascRB = ttk.Radiobutton(root, text='Asc', variable=sortingOrderVar, value='asc', command=set_order)
+ascRB = ttk.Radiobutton(
+    root, text='Asc', variable=sortingOrderVar, value='asc', command=set_order)
 ascRB.place(relx=0.22, rely=0.425)
 # desc
-descRB = ttk.Radiobutton(root, text='Desc', variable=sortingOrderVar, value='desc', command=set_order)
+descRB = ttk.Radiobutton(
+    root, text='Desc', variable=sortingOrderVar, value='desc', command=set_order)
 descRB.place(relx=0.4, rely=0.425)
 descRB.invoke()
 # -------------
@@ -826,8 +843,10 @@ descRB.invoke()
 resolutionLB = ttk.Label(root, text='Resolution:', anchor='e', width=8)
 resolutionLB.place(relx=0.01, rely=0.515, relwidth=0.19)
 
-resolutionList = ['Any','1280x720','1600x900','1920x1080','2560x1440','3840x2160']
-resolutionCB = ttk.Combobox(root, values=resolutionList, width=10, state='readonly')
+resolutionList = ['Any', '1280x720', '1600x900',
+                  '1920x1080', '2560x1440', '3840x2160']
+resolutionCB = ttk.Combobox(
+    root, values=resolutionList, width=10, state='readonly')
 resolutionCB.place(relx=0.22, rely=0.5, relwidth=0.3)
 resolutionCB.bind('<<ComboboxSelected>>', on_resolution_selected)
 resolutionCB.current(0)
@@ -841,12 +860,14 @@ ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
 ratioCB.bind('<<ComboboxSelected>>', on_ratio_selected)
 ratioCB.current(0)
 
-#radio buttons exact, atleast
+# radio buttons exact, atleast
 resolutionVar = StringVar()
-exactRB = ttk.Radiobutton(root, text='Exact', variable=resolutionVar, value='exact', command=on_exact_or_atleast)
+exactRB = ttk.Radiobutton(root, text='Exact', variable=resolutionVar,
+                          value='exact', command=on_exact_or_atleast)
 exactRB.place(relx=0.22, rely=0.6)
 
-atleastRB = ttk.Radiobutton(root, text='Atleast', variable=resolutionVar, value='atleast', command=on_exact_or_atleast)
+atleastRB = ttk.Radiobutton(root, text='Atleast', variable=resolutionVar,
+                            value='atleast', command=on_exact_or_atleast)
 atleastRB.place(relx=0.4, rely=0.6)
 atleastRB.invoke()
 
@@ -854,7 +875,7 @@ atleastRB.invoke()
 pageLB = ttk.Label(root, text='Page:', anchor='e', width=8)
 pageLB.place(relx=0.01, rely=0.7, relwidth=0.19)
 
-pagelist = ['Any','1','1-3','1-5','1-10','1-15','1-20']
+pagelist = ['Any', '1', '1-3', '1-5', '1-10', '1-15', '1-20']
 pageLB = ttk.Label(root, text='Page:')
 pageCB = ttk.Combobox(root, values=pagelist, width=10, state='readonly')
 pageCB.place(relx=0.22, rely=0.685, relwidth=0.18)
@@ -887,11 +908,12 @@ statusLB = ttk.Label(root, textvariable=statusVar, anchor='w', width=10)
 statusLB.place(relx=0.22, rely=0.92, relwidth=0.50)
 
 # Run button
-runBT = ttk.Button(root, text='Run', command=toggle_running, width=5, style='Run.TButton')
+runBT = ttk.Button(root, text='Run', command=toggle_running,
+                   width=5, style='Run.TButton')
 runBT.place(relx=0.7, rely=0.9, relwidth=0.23)
 
 
-api_cache() # set apikey if its found in cache
+api_cache()  # set apikey if its found in cache
 
 # tkinter loop
 root.mainloop()
