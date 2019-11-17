@@ -2,6 +2,7 @@
 
 # imports
 import os
+import platform
 import requests
 import time
 import random
@@ -445,6 +446,9 @@ def fetch():
             pprint(chosen_wallpaper)
             chosen_wallpaper = chosen_wallpaper['path']
             if(download_wall(chosen_wallpaper) and run):
+                currentPlatform = platform.system()
+                print(currentPlatform)
+                
                 set_wall_method_feh()
         else:
             statusVar.set('wallpapers no match found with current parameters')
@@ -820,7 +824,7 @@ saveCB = ttk.Checkbutton(root, variable=saveVar, onvalue=1, offvalue=0)
 saveCB.place(relx=0.22, rely=0.775)
 
 # timeout
-timeoutLB = ttk.Label(root, text='interval:', anchor='e', width=8)
+timeoutLB = ttk.Label(root, text='Interval:', anchor='e', width=8)
 timeoutLB.place(relx=0.01, rely=0.853, relwidth=0.19)
 
 timeoutEN = ttk.Entry(root, width=5)
