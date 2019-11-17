@@ -126,34 +126,36 @@ def api_cache():
     global apikey
 
     getapi = 'get your api from: https://wallhaven.cc/settings/account'
+    
+    if os.path.exists('.apicache'):
+        print('api cache exists')
+        with open('.apicache', 'r') as api_cache:
+            api_cached_key = api_cache.read()
+            apiEntryState = str(apikeyEN.cget('state'))
 
-    with open('.apicache', 'r') as api_cache:
-        api_cached_key = api_cache.read()
-        apiEntryState = str(apikeyEN.cget('state'))
+            if (api_cached_key):
+                if apiEntryState == 'disabled':
+                    apikeyEN.config(state = 'enabled')
+                    apikeyEN.delete(0, END)
+                    apikeyEN.insert(0, api_cached_key)
+                    apikeyEN.config(state = 'disabled')
+                else:
+                    apikeyEN.delete(0, END)
+                    apikeyEN.insert(0, api_cached_key)
 
-        if (api_cached_key):
-            if apiEntryState == 'disabled':
-                apikeyEN.config(state = 'enabled')
-                apikeyEN.delete(0, END)
-                apikeyEN.insert(0, api_cached_key)
-                apikeyEN.config(state = 'disabled')
+                apikey = api_cached_key
+
             else:
-                apikeyEN.delete(0, END)
-                apikeyEN.insert(0, api_cached_key)
-
-            apikey = api_cached_key
-
-        else:
-            print('no api found!')
-            print(apikeyEN.cget('state'))
-            if apiEntryState == 'disabled':
-                apikeyEN.config(state = 'enabled')
-                apikeyEN.delete(0, END)
-                apikeyEN.insert(0, getapi)
-                apikeyEN.config(state = 'disabled')
-            else:
-                apikeyEN.delete(0, END)
-                apikeyEN.insert(0, getapi)
+                print('no api found!')
+                print(apikeyEN.cget('state'))
+                if apiEntryState == 'disabled':
+                    apikeyEN.config(state = 'enabled')
+                    apikeyEN.delete(0, END)
+                    apikeyEN.insert(0, getapi)
+                    apikeyEN.config(state = 'disabled')
+                else:
+                    apikeyEN.delete(0, END)
+                    apikeyEN.insert(0, getapi)
 
 
 # function for api input
@@ -461,10 +463,10 @@ def set_wallpaper(platform):  # need more compatibility
     global run
 
     if (platform == 'Linux'):
-        set_wall_method_feh()
+        set_wall_on_linux()
     
     elif (platform == 'Windows'):
-        set_wall_method_windows()
+        set_wall_on_windows()
 
     elif (platform == 'Darwin'):
         toggle_running() 
@@ -492,23 +494,31 @@ def set_lastpage():
     print(lastpage, '= lastpage')
 
 
-def set_wall_method_windows():
+def set_wall_on_windows():
     statusVar.set('setting wallpaper')
     global wallpath
 
     if (saveVar.get()):
-        SPI_SETDESKWALLPAPER = 20 
-        ctypes.windll.user32.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, wallpath, 3)
+
+        dirpath = os.getcwd()
+        imgpath = wallpath
+        wallpath = os.path.join(dirpath, imgpath)
+
+        ctypes.windll.user32.SystemParametersInfoA(20, 0, wallpath, 3)
 
         statusVar.set(f'{wallpath} wallpaper set and saved')
-    else:
-        SPI_SETDESKWALLPAPER = 20 
-        ctypes.windll.user32.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, '.wallpaper.jpg', 3)
+    else: 
+        dirpath = os.getcwd()
+        imgpath = '.wallpaper.jpg'
+        wallpath = os.path.join(dirpath, imgpath)
+
+        ctypes.windll.user32.SystemParametersInfoA(20, 0, wallpath, 3)
 
         statusVar.set('wallpaper set')
         print('wallpaper applied')
 
-
+def set_wall_on_linux(): # need more methods for all linux
+    set_wall_method_feh()
 
 def set_wall_method_feh():
     statusVar.set('setting wallpaper using feh')
