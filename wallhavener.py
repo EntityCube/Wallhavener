@@ -2,6 +2,7 @@
 
 # imports
 import os
+import ctypes
 import platform
 import requests
 import time
@@ -448,12 +449,29 @@ def fetch():
             if(download_wall(chosen_wallpaper) and run):
                 currentPlatform = platform.system()
                 print(currentPlatform)
-                
-                set_wall_method_feh()
+                set_wallpaper(currentPlatform)
+
         else:
             statusVar.set('wallpapers no match found with current parameters')
             print('no wallpapers recieved')
             toggle_running()
+
+
+def set_wallpaper(platform):  # need more compatibility
+    global run
+
+    if (platform == 'Linux'):
+        set_wall_method_feh()
+    
+    elif (platform == 'Windows'):
+        set_wall_method_windows()
+
+    elif (platform == 'Darwin'):
+        toggle_running() 
+        statusVar.set('This app is not in supported in this platform')
+
+    else:
+       statusVar.set('This platform not supported') 
 
 
 def set_lastpage():
@@ -472,6 +490,24 @@ def set_lastpage():
         print('here')
 
     print(lastpage, '= lastpage')
+
+
+def set_wall_method_windows():
+    statusVar.set('setting wallpaper')
+    global wallpath
+
+    if (saveVar.get()):
+        SPI_SETDESKWALLPAPER = 20 
+        ctypes.windll.user32.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, wallpath, 3)
+
+        statusVar.set(f'{wallpath} wallpaper set and saved')
+    else:
+        SPI_SETDESKWALLPAPER = 20 
+        ctypes.windll.user32.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, '.wallpaper.jpg', 3)
+
+        statusVar.set('wallpaper set')
+        print('wallpaper applied')
+
 
 
 def set_wall_method_feh():
