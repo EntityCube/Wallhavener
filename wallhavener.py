@@ -127,7 +127,7 @@ def api_cache():
     getapi = 'get your api from: https://wallhaven.cc/settings/account'
 
     if os.path.exists('.apicache'):
-        print('api cache exists')
+        # print('api cache exists')
         with open('.apicache', 'r') as api_cache:
             api_cached_key = api_cache.read()
             apiEntryState = str(apikeyEN.cget('state'))
@@ -145,8 +145,8 @@ def api_cache():
                 apikey = api_cached_key
 
             else:
-                print('no api found!')
-                print(apikeyEN.cget('state'))
+                # print('no api found!')
+                # print(apikeyEN.cget('state'))
                 if apiEntryState == 'disabled':
                     apikeyEN.config(state='enabled')
                     apikeyEN.delete(0, END)
@@ -169,7 +169,7 @@ def on_apikey_input(event):
 def set_apikey(value):
     global apikey
     apikey = value
-    print(apikey)
+    # print(apikey)
 
 
 # function for setting sorting
@@ -192,7 +192,7 @@ def on_sorting_selected(event):
 def set_sorting(value):
     global sorting
     sorting = value
-    print(sorting)
+    # print(sorting)
 
 
 # function for setting toprange
@@ -207,7 +207,7 @@ def on_top_range_selected(event):
 def set_top_range(value):
     global topRange
     topRange = value
-    print(topRange)
+    # print(topRange)
 
 
 # function for setting order
@@ -216,7 +216,7 @@ order = 'desc'
 
 def set_order():
     order = sortingOrderVar.get()
-    print(order)
+    # print(order)
 
 
 # function for setting resolution
@@ -253,8 +253,8 @@ def set_resolution(value):
         resolutions = value
         atleast = ''
 
-    print('res', resolutions)
-    print('atl', atleast)
+    # print('res', resolutions)
+    # print('atl', atleast)
 
 
 # function for setting exact and atleast
@@ -304,7 +304,7 @@ def set_page(value):
     else:
         page = value
 
-    print(page)
+    # print(page)
 
 
 # function for timeout entry
@@ -320,18 +320,18 @@ def on_timeout_input(event):
 def set_timeout(value):
     global timeout
     timeout = int(value)
-    print(timeout)
+    # print(timeout)
 
 
 def validate_timeout_input(value):
     if value:
         try:
             int(value)
-            print(value)
+            # print(value)
             return True
         except ValueError:
             timeoutEN.delete(0, END)
-            print('deleted')
+            # print('deleted')
             return False
     else:
         return False
@@ -378,15 +378,15 @@ def StartThread():
 
 def main():
     global run
-    print(run)
-    if run:
-        print('Starting')
-    else:
-        print('Stopping')
+    # print(run)
+    # if run:
+        # print('Starting')
+    # else:
+        # print('Stopping')
 
 
 def set_apicache():
-    print('saving api key', apikey)
+    # print('saving api key', apikey)
     with open('.apicache', 'w') as apicache:
         apicache.write(apikey)
 
@@ -398,7 +398,7 @@ def loop():
 
     while 1:
         while run:
-            print('looping x')
+            # print('looping x')
             fetch()
 
             for i in range(loopTimeout, 0, -1):
@@ -407,7 +407,7 @@ def loop():
                 else:
                     time.sleep(1)
                     statusVar.set(i-1)
-                    print(i)
+                    # print(i)
 
         time.sleep(1)
 
@@ -424,24 +424,25 @@ url = 'https://wallhaven.cc/api/v1/search'
 def fetch():
     set_params()
     global params
-    print(params)
+    # print(params)
     global lastpage
     global response
     global run
+    global lastSetWallpaper
 
     response_code = 0
     try:
         if run:
-            print('sending api----------------------')
+            # print('sending api----------------------')
             statusVar.set('sending api request')
             response = requests.get(url, params=params)
             response_code = response.status_code
     except Exce:
-        print('No internet Error')
+        # print('No internet Error')
         statusVar.set('Network Error')
         toggle_running()
 
-    print(response_code)
+    # print(response_code)
     if (run and validate_response_code(response_code)):
         set_lastpage()
 
@@ -449,16 +450,18 @@ def fetch():
 
         if (wallpaper_list and run):
             chosen_wallpaper = random.choice(wallpaper_list)
-            pprint(chosen_wallpaper)
+            lastSetWallpaper = chosen_wallpaper
+
+            # pprint(chosen_wallpaper)
             chosen_wallpaper = chosen_wallpaper['path']
             if(download_wall(chosen_wallpaper) and run):
                 currentPlatform = platform.system()
-                print(currentPlatform)
+                # print(currentPlatform)
                 set_wallpaper(currentPlatform)
 
         else:
             statusVar.set('wallpapers no match found with current parameters')
-            print('no wallpapers recieved')
+            # print('no wallpapers recieved')
             toggle_running()
 
 
@@ -473,10 +476,10 @@ def set_wallpaper(platform):  # need more compatibility
 
     elif (platform == 'Darwin'):
         toggle_running()
-        statusVar.set('This app is not in supported in this platform')
+        statusVar.set('This app is not supported in mac now')
 
     else:
-        statusVar.set('This platform not supported')
+        statusVar.set('This platform not supported now')
 
 
 def set_lastpage():
@@ -492,9 +495,8 @@ def set_lastpage():
         lastpage = 1
     elif(int(page.split('-')[0]) <= lastpage):
         lastpage = int(page.split('-')[1])
-        print('here')
 
-    print(lastpage, '= lastpage')
+    # print(lastpage, '= lastpage')
 
 
 def set_wall_on_windows():
@@ -518,7 +520,7 @@ def set_wall_on_windows():
         ctypes.windll.user32.SystemParametersInfoW(20, 0, wallpath, 3)
 
         statusVar.set('wallpaper set')
-        print('wallpaper applied')
+        # print('wallpaper applied')
 
 
 def set_wall_on_linux():  # need more methods for all linux
@@ -534,7 +536,7 @@ def set_wall_method_feh():
     else:
         os.system('feh .wallpaper.jpg --bg-fill')
         statusVar.set('wallpaper set')
-        print('wallpaper applied')
+        # print('wallpaper applied')
 
 
 def download_wall(url):
@@ -546,12 +548,12 @@ def download_wall(url):
     wallpath = f'Wallpapers/{wallname}'
 
     if os.path.isfile(wallpath):
-        print("File found in saved -------------------------")
-        statusVar.set('Wallaper found in saved')
+        # print("Image found in cache")
+        # statusVar.set('Wallaper found in saved')
         return True
 
     if (saveVar.get()):
-        print(wallpath)
+        # print(wallpath)
         newpath = r'Wallpapers'
         if not os.path.exists(newpath):
             os.makedirs(newpath)
@@ -563,23 +565,30 @@ def download_wall(url):
             statusVar.set(f'downloading: {url}')
             response = requests.get(url, allow_redirects=True)
             open(wallpath, 'wb').write(response.content)
-            print('Wallpaper downloaded')
+            # print('Wallpaper downloaded')
             return True
     except:
         statusVar.set(f'error downloading: {url}')
-        print('Error downloading wallpaper')
+        # print('Error downloading wallpaper')
         toggle_running()
         return False
 
 
+lastSetWallpaper = {'path': ''}
+
+
 def filter_wall_urls(response):
+    global lastSetWallpaper
+
     statusVar.set('filtering urls')
     response_json = response.json()
     response_list = response_json['data']
     collected_wall_urls = []
     for item in response_list:
-        # collected_wall_urls.append(item['path'])
-        collected_wall_urls.append(item)
+        # filter the new list from last set wallpaper to avoid duplication
+        if(item['path'] != lastSetWallpaper['path']):
+            collected_wall_urls.append(item)
+
     return collected_wall_urls
 
 
@@ -591,12 +600,10 @@ def validate_response_code(code):
         statusVar.set('response code okay')
         return True
     else:
-        print('error code:', code)
 
         statusVar.set(f'bad response code {code}')
 
         if (code == 401):
-            print('invalid apikey')
             toggle_running()
             statusVar.set('invalid apikey')
             apikeyEN.delete(0, END)
