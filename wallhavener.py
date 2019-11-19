@@ -166,6 +166,7 @@ def api_cache():
             apikeyEN.delete(0, END)
             apikeyEN.insert(0, getapi)
 
+
 # function for api input
 apikey = ''
 
@@ -390,9 +391,9 @@ def main():
     global run
     # print(run)
     # if run:
-        # print('Starting')
+    # print('Starting')
     # else:
-        # print('Stopping')
+    # print('Stopping')
 
 
 def set_apicache():
@@ -444,10 +445,11 @@ def fetch():
     try:
         if run:
             # print('sending api----------------------')
+            print(params)
             statusVar.set('sending api request')
             response = requests.get(url, params=params)
             response_code = response.status_code
-    except Exce:
+    except Exception:
         # print('No internet Error')
         statusVar.set('Network Error')
         toggle_running()
@@ -609,7 +611,7 @@ def validate_response_code(code):
     if (code == 200):
         statusVar.set('response code okay')
 
-        set_apicache() # set api key cache
+        set_apicache()  # set api key cache
         return True
 
     else:
@@ -622,7 +624,6 @@ def validate_response_code(code):
             apikeyEN.delete(0, END)
             getapi = 'get your api from: https://wallhaven.cc/settings/account'
             apikeyEN.insert(0, getapi)
-
 
         return False
 
