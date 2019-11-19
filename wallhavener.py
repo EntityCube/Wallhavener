@@ -125,12 +125,12 @@ def api_cache():
     global apikey
 
     getapi = 'get your api from: https://wallhaven.cc/settings/account'
+    apiEntryState = str(apikeyEN.cget('state'))
 
-    if os.path.exists('.apicache'):
+    if os.path.exists('.apicache.ini'):
         # print('api cache exists')
-        with open('.apicache', 'r') as api_cache:
+        with open('.apicache.ini', 'r') as api_cache:
             api_cached_key = api_cache.read()
-            apiEntryState = str(apikeyEN.cget('state'))
 
             if (api_cached_key):
                 if apiEntryState == 'disabled':
@@ -156,6 +156,15 @@ def api_cache():
                     apikeyEN.delete(0, END)
                     apikeyEN.insert(0, getapi)
 
+    else:
+        if apiEntryState == 'disabled':
+            apikeyEN.config(state='enabled')
+            apikeyEN.delete(0, END)
+            apikeyEN.insert(0, getapi)
+            apikeyEN.config(state='disabled')
+        else:
+            apikeyEN.delete(0, END)
+            apikeyEN.insert(0, getapi)
 
 # function for api input
 apikey = ''
@@ -370,6 +379,7 @@ def toggle_setting_widgets(running):
 
 def StartThread():
     thread = Thread(target=loop)
+    thread.daemon = True
     thread.start()
 
 # ****** PROGRAM REAL FUNCTIONS ********
@@ -387,7 +397,7 @@ def main():
 
 def set_apicache():
     # print('saving api key', apikey)
-    with open('.apicache', 'w') as apicache:
+    with open('.apicache.ini', 'w') as apicache:
         apicache.write(apikey)
 
 
@@ -598,7 +608,10 @@ def validate_response_code(code):
     statusVar.set('validating response code')
     if (code == 200):
         statusVar.set('response code okay')
+
+        set_apicache() # set api key cache
         return True
+
     else:
 
         statusVar.set(f'bad response code {code}')
@@ -609,6 +622,8 @@ def validate_response_code(code):
             apikeyEN.delete(0, END)
             getapi = 'get your api from: https://wallhaven.cc/settings/account'
             apikeyEN.insert(0, getapi)
+
+
         return False
 
 
@@ -715,13 +730,11 @@ root = ThemedTk(theme='equilux')
 # root.resizable(False, False)
 root.minsize(350, 450)
 root.title('Wallhavener')
-
-# alpha set
+root.attributes("-alpha", 0.93)
 
 # root.update_idletasks()
 # root.overrideredirect(True)
 # root.wait_visibility(root)
-# root.attributes("-alpha", 0.8)
 # root.attributes('-type', 'normal')
 # root.attributes('-alpha', 0.8)
 
@@ -746,7 +759,7 @@ def gui_style():
 
     # bakcground fix
     style.configure('TButton', background=canvasbg, foreground=whitefg)
-    style.configure('TCombobox', background=canvasbg, foreground=whitefg)
+    style.configure('TCombobox', background=canvasbg)
     style.configure('TEntry', background=canvasbg, foreground=whitefg)
     style.configure('TCheckbutton', background=canvasbg, foreground=whitefg)
 
