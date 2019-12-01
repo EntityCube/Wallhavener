@@ -105,16 +105,18 @@ def toggle_purity_color():
         sketchyBT.configure(style='Active.TButton')
 
     if (purityArr[2] == 0):
-        nsfwBT.configure(style='Inactive.TButton')
+        # nsfwBT.configure(style='Inactive.TButton')
         # apikeyLB.place_forget()  # hide api label
         # apikeyEN.place_forget()  # hide api entry
-        apikeyEN.configure(state='disabled')
+        # apikeyEN.configure(state='disabled')
+        pass
 
     else:
-        nsfwBT.configure(style='Active.TButton')
-        apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
-        apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
-        apikeyEN.configure(state='enabled')
+        pass
+        # nsfwBT.configure(style='Active.TButton')
+        # apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
+        # apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
+        # apikeyEN.configure(state='enabled')
 
         # api_cache()
 
@@ -809,20 +811,20 @@ sketchyBT = ttk.Button(text='Sketchy', width=6,
                        style='Inactive.TButton', command=lambda: set_purity('sketchy'))
 sketchyBT.place(relx=0.47, rely=0.15, relwidth=0.2)
 
-nsfwBT = ttk.Button(text='NSFW', width=6, style='Inactive.TButton',
-                    command=lambda: set_purity('nsfw'))
-nsfwBT.place(relx=0.72, rely=0.15, relwidth=0.2)
+# nsfwBT = ttk.Button(text='NSFW', width=6, style='Inactive.TButton',
+                    # command=lambda: set_purity('nsfw'))
+# nsfwBT.place(relx=0.72, rely=0.15, relwidth=0.2)
 
 # Api entry
-apikeyLB = ttk.Label(root, text='Api key:', anchor='e', width=8)
-apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
+# apikeyLB = ttk.Label(root, text='Api key:', anchor='e', width=8)
+# apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
 # apikeyLB.place_forget()
 
-apikeyEN = ttk.Entry(root, width=30, state='disabled')
-apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
+# apikeyEN = ttk.Entry(root, width=30, state='disabled')
+# apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
 # apikeyEN.place_forget()
-apikeyEN.bind('<KeyRelease>', on_apikey_input)
-apikeyEN.bind('<FocusOut>', on_apikey_input)
+# apikeyEN.bind('<KeyRelease>', on_apikey_input)
+# apikeyEN.bind('<FocusOut>', on_apikey_input)
 
 
 # sorting methods
@@ -934,7 +936,7 @@ runBT = ttk.Button(root, text='Run', command=toggle_running,
 runBT.place(relx=0.7, rely=0.9, relwidth=0.23)
 
 
-api_cache()  # set apikey if its found in cache
+# api_cache()  # set apikey if its found in cache
 
 # tkinter loop
 root.mainloop()
