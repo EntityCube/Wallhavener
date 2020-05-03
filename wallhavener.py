@@ -13,6 +13,7 @@ from tkinter import ttk
 from ttkthemes import ThemedTk
 from threading import Thread
 import pdb  # for debugging
+from tkinter import Message
 
 # --- Program Functions ---
 
@@ -112,8 +113,8 @@ def toggle_purity_color():
 
     else:
         nsfwBT.configure(style='Active.TButton')
-        apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
-        apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
+        # apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)  # show api label
+        # apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)  # show api entry
         apikeyEN.configure(state='enabled')
 
         # api_cache()
@@ -193,7 +194,7 @@ def on_sorting_selected(event):
 
     if (selected_sorting == 'toplist' or selected_sorting == 'toplist-beta'):
         topRange = '1M'
-        topRangeCB.place(relx=0.75, rely=0.34, relwidth=0.2)
+        topRangeCB.place(relx=0.75, rely=0.27, relwidth=0.2)
     else:
         topRangeCB.place_forget()
         topRange = ''
@@ -245,8 +246,8 @@ def on_resolution_selected(event):
         ratioCB.place_forget()
         ratioLB.place_forget()
     else:
-        ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
-        ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
+        ratioCB.place(relx=0.65, rely=0.4, relwidth=0.2)
+        ratioLB.place(relx=0.53, rely=0.415, relwidth=0.1)
 
 
 def set_resolution(value):
@@ -276,8 +277,8 @@ def on_exact_or_atleast():
         ratioCB.place_forget()
         ratioLB.place_forget()
     else:
-        ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
-        ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
+        ratioCB.place(relx=0.65, rely=0.4, relwidth=0.2)
+        ratioLB.place(relx=0.53, rely=0.415, relwidth=0.1)
 
 
 # function for setting ratio
@@ -336,7 +337,10 @@ def set_timeout(value):
 def validate_timeout_input(value):
     if value:
         try:
-            int(value)
+            if (value != 0):
+                int(value)
+            
+
             # print(value)
             return True
         except ValueError:
@@ -643,6 +647,7 @@ def set_settings():
     global reqAtleast
     global reqResolutions
     global reqRatios
+    global reqTags
 
     global timeout
     global loopTimeout
@@ -652,6 +657,8 @@ def set_settings():
 
     reqCategories = category
     reqPurity = purity
+    
+    tags = tagsEN.get()
 
     # dont use api key if nsfw purity is off
     if (purityArr[2] != 0):
@@ -665,6 +672,7 @@ def set_settings():
     reqAtleast = atleast
     reqResolutions = resolutions
     reqRatios = ratios
+    reqTags = tags
 
     loopTimeout = timeout
 
@@ -685,6 +693,7 @@ def set_params():  # This function is called everytime when requesting for new w
     global reqAtleast
     global reqResolutions
     global reqRatios
+    global reqTags
 
     random_page = random.randint(1, lastpage)
 
@@ -697,6 +706,7 @@ def set_params():  # This function is called everytime when requesting for new w
               'atleast': reqAtleast,
               'resolutions': reqResolutions,
               'ratios': reqRatios,
+              'q': reqTags,
 
               # random page needs will be 1 on first api call
               # on 1st request we get lastpage number
@@ -713,8 +723,8 @@ def concatenate_list_data(list):
 
 
 #  *********** GUI ****************
-# WIDTH = 500
-# HEIGHT =600
+WIDTH = 450
+HEIGHT = 650
 
 # COLORS
 # bg
@@ -729,7 +739,7 @@ runBTcolor = '#00C853'
 
 root = ThemedTk(theme='equilux')
 # root.resizable(False, False)
-root.minsize(350, 450)
+root.minsize(WIDTH, HEIGHT)
 root.title('Wallhavener')
 root.attributes("-alpha", 0.93)
 
@@ -782,59 +792,67 @@ gui_style()
 
 # Categories
 categoryLB = ttk.Label(root, text='Category:', anchor='e', width=8)
-categoryLB.place(relx=0.01, rely=0.05, relwidth=0.17)
+categoryLB.place(relx=0.01, rely=0.03, relwidth=0.17)
 
 generalBT = ttk.Button(text='General', width=6, style='Active.TButton',
                        command=lambda: set_category('general'))
-generalBT.place(relx=0.22, rely=0.05, relwidth=0.2)
+generalBT.place(relx=0.22, rely=0.03, relwidth=0.2)
 
 animeBT = ttk.Button(text='Anime', width=6, style='Inactive.TButton',
                      command=lambda: set_category('anime'))
-animeBT.place(relx=0.47, rely=0.05, relwidth=0.2)
+animeBT.place(relx=0.47, rely=0.03, relwidth=0.2)
 
 peopleBT = ttk.Button(text='People', width=6, style='Inactive.TButton',
                       command=lambda: set_category('people'))
-peopleBT.place(relx=0.72, rely=0.05, relwidth=0.2)
+peopleBT.place(relx=0.72, rely=0.03, relwidth=0.2)
 # ----------
 
 # Purity label and 3 buttons
 purtiyLB = ttk.Label(root, text='Purity:', anchor='e', width=8)
-purtiyLB.place(relx=0.01, rely=0.15, relwidth=0.17)
+purtiyLB.place(relx=0.01, rely=0.09, relwidth=0.17)
 
 sfwBT = ttk.Button(text='SFW', width=6, style='Active.TButton',
                    command=lambda: set_purity('sfw'))
-sfwBT.place(relx=0.22, rely=0.15, relwidth=0.2)
+sfwBT.place(relx=0.22, rely=0.09, relwidth=0.2)
 
 sketchyBT = ttk.Button(text='Sketchy', width=6,
                        style='Inactive.TButton', command=lambda: set_purity('sketchy'))
-sketchyBT.place(relx=0.47, rely=0.15, relwidth=0.2)
+sketchyBT.place(relx=0.47, rely=0.09, relwidth=0.2)
 
 nsfwBT = ttk.Button(text='NSFW', width=6, style='Inactive.TButton',
                     command=lambda: set_purity('nsfw'))
-nsfwBT.place(relx=0.72, rely=0.15, relwidth=0.2)
+nsfwBT.place(relx=0.72, rely=0.09, relwidth=0.2)
 
 # Api entry
 apikeyLB = ttk.Label(root, text='Api key:', anchor='e', width=8)
-apikeyLB.place(relx=0.01, rely=0.25, relwidth=0.17)
+apikeyLB.place(relx=0.01, rely=0.15, relwidth=0.17)
 # apikeyLB.place_forget()
 
 apikeyEN = ttk.Entry(root, width=30, state='disabled')
-apikeyEN.place(relx=0.22, rely=0.25, relwidth=0.7)
+apikeyEN.place(relx=0.22, rely=0.15, relwidth=0.7)
 # apikeyEN.place_forget()
 apikeyEN.bind('<KeyRelease>', on_apikey_input)
 apikeyEN.bind('<FocusOut>', on_apikey_input)
 
 
+# Tags
+tagsLB = ttk.Label(root, text='Tags:', anchor='e', width=8)
+tagsLB.place(relx=0.01, rely=0.21, relwidth=0.17)
+
+tagsEN = ttk.Entry(root, width=30)
+tagsEN.place(relx=0.22, rely=0.21, relwidth=0.7)
+
+
 # sorting methods
 sortingLB = ttk.Label(root, text='Sort By:', anchor='e', width=8)
-sortingLB.place(relx=0.01, rely=0.35, relwidth=0.17)
+sortingLB.place(relx=0.01, rely=0.28, relwidth=0.17)
 
 sortingMethodList = ['date_added', 'relevance', 'random',
                      'views', 'favorites', 'toplist', 'toplist-beta']
 sortingCB = ttk.Combobox(root, values=sortingMethodList,
                          width=10, state='readonly')
 sortingCB.current(0)
-sortingCB.place(relx=0.22, rely=0.34, relwidth=0.5)
+sortingCB.place(relx=0.22, rely=0.27, relwidth=0.5)
 sortingCB.bind('<<ComboboxSelected>>', on_sorting_selected)
 # ---------------
 
@@ -842,7 +860,7 @@ sortingCB.bind('<<ComboboxSelected>>', on_sorting_selected)
 topRangeList = ['1d', '3d', '1w', '1M', '3M', '6M', '1y']
 topRangeCB = ttk.Combobox(root, values=topRangeList, width=3, state='readonly')
 topRangeCB.current(3)
-topRangeCB.place(relx=0.75, rely=0.34, relwidth=0.2)
+topRangeCB.place(relx=0.75, rely=0.27, relwidth=0.2)
 topRangeCB.place_forget()
 topRangeCB.bind('<<ComboboxSelected>>', on_top_range_selected)
 # -------------
@@ -852,32 +870,32 @@ topRangeCB.bind('<<ComboboxSelected>>', on_top_range_selected)
 sortingOrderVar = StringVar()
 ascRB = ttk.Radiobutton(
     root, text='Asc', variable=sortingOrderVar, value='asc', command=set_order)
-ascRB.place(relx=0.22, rely=0.425)
+ascRB.place(relx=0.22, rely=0.33)
 # desc
 descRB = ttk.Radiobutton(
     root, text='Desc', variable=sortingOrderVar, value='desc', command=set_order)
-descRB.place(relx=0.4, rely=0.425)
+descRB.place(relx=0.4, rely=0.33)
 descRB.invoke()
 # -------------
 
 # Resolution
 resolutionLB = ttk.Label(root, text='Resolution:', anchor='e', width=8)
-resolutionLB.place(relx=0.01, rely=0.515, relwidth=0.19)
+resolutionLB.place(relx=0.01, rely=0.415, relwidth=0.19)
 
 resolutionList = ['Any', '1280x720', '1600x900',
                   '1920x1080', '2560x1440', '3840x2160']
 resolutionCB = ttk.Combobox(
     root, values=resolutionList, width=10, state='readonly')
-resolutionCB.place(relx=0.22, rely=0.5, relwidth=0.3)
+resolutionCB.place(relx=0.22, rely=0.4, relwidth=0.3)
 resolutionCB.bind('<<ComboboxSelected>>', on_resolution_selected)
 resolutionCB.current(0)
 
 # Ratio
 ratioLB = ttk.Label(root, text='Ratio:', anchor='e', width=4)
-ratioLB.place(relx=0.53, rely=0.515, relwidth=0.1)
+ratioLB.place(relx=0.53, rely=0.415, relwidth=0.1)
 
 ratioCB = ttk.Combobox(root, values=ratios_list, width=4, state='readonly')
-ratioCB.place(relx=0.65, rely=0.5, relwidth=0.2)
+ratioCB.place(relx=0.65, rely=0.4, relwidth=0.2)
 ratioCB.bind('<<ComboboxSelected>>', on_ratio_selected)
 ratioCB.current(0)
 
@@ -885,48 +903,48 @@ ratioCB.current(0)
 resolutionVar = StringVar()
 exactRB = ttk.Radiobutton(root, text='Exact', variable=resolutionVar,
                           value='exact', command=on_exact_or_atleast)
-exactRB.place(relx=0.22, rely=0.6)
+exactRB.place(relx=0.22, rely=0.46)
 
 atleastRB = ttk.Radiobutton(root, text='Atleast', variable=resolutionVar,
                             value='atleast', command=on_exact_or_atleast)
-atleastRB.place(relx=0.4, rely=0.6)
+atleastRB.place(relx=0.4, rely=0.46)
 atleastRB.invoke()
 
 # Page
 pageLB = ttk.Label(root, text='Page:', anchor='e', width=8)
-pageLB.place(relx=0.01, rely=0.7, relwidth=0.19)
+pageLB.place(relx=0.01, rely=0.54, relwidth=0.19)
 
 pagelist = ['Any', '1', '1-3', '1-5', '1-10', '1-15', '1-20']
 pageLB = ttk.Label(root, text='Page:')
 pageCB = ttk.Combobox(root, values=pagelist, width=10, state='readonly')
-pageCB.place(relx=0.22, rely=0.685, relwidth=0.18)
+pageCB.place(relx=0.22, rely=0.53, relwidth=0.18)
 pageCB.bind('<<ComboboxSelected>>', on_page_selected)
 pageCB.current(0)
 
 # Save locally
 saveLocallyLB = ttk.Label(root, text='Save Img:', anchor='e', width=8)
-saveLocallyLB.place(relx=0.01, rely=0.785, relwidth=0.19)
+saveLocallyLB.place(relx=0.01, rely=0.62, relwidth=0.19)
 
 saveVar = IntVar()
 saveCB = ttk.Checkbutton(root, variable=saveVar, onvalue=1, offvalue=0)
-saveCB.place(relx=0.22, rely=0.775)
+saveCB.place(relx=0.22, rely=0.612)
 
 # timeout
 timeoutLB = ttk.Label(root, text='Interval:', anchor='e', width=8)
-timeoutLB.place(relx=0.01, rely=0.853, relwidth=0.19)
+timeoutLB.place(relx=0.01, rely=0.672, relwidth=0.19)
 
 timeoutEN = ttk.Entry(root, width=5)
-timeoutEN.place(relx=0.22, rely=0.85, relwidth=0.2)
+timeoutEN.place(relx=0.22, rely=0.67, relwidth=0.2)
 timeoutEN.bind('<KeyRelease>', on_timeout_input)
 
 # countdown and status
 statusLB = ttk.Label(root, text='status:', anchor='e', width=8)
-statusLB.place(relx=0.01, rely=0.92, relwidth=0.19)
+statusLB.place(relx=0.01, rely=0.73, relwidth=0.19)
 
 statusVar = StringVar()
 statusVar.set('Not Running')
-statusLB = ttk.Label(root, textvariable=statusVar, anchor='w', width=10)
-statusLB.place(relx=0.22, rely=0.92, relwidth=0.50)
+statusLB2 = Message(root, textvariable=statusVar, anchor='nw', justify='left', fg=whitefg, bg=canvasbg, width=380)
+statusLB2.place(relx=0.22, rely=0.728)
 
 # Run button
 runBT = ttk.Button(root, text='Run', command=toggle_running,
